@@ -20,7 +20,9 @@ func (r *horseResolver) Sire(ctx context.Context, obj *model.Horse) (*model.Hors
 	var returnErr error = nil
 	row := db.QueryRow(sqlStatement, obj.SireID)
 	returnErr = row.Scan(&horse.Name, &horse.AltName, &horse.Gender, &horse.SireID, &horse.DamID)
-
+	if obj.SireID != nil {
+		horse.ID = *obj.SireID
+	}
 	return &horse, returnErr
 }
 
@@ -45,6 +47,7 @@ func (r *queryResolver) Horse(ctx context.Context, horseID string) (*model.Horse
 	db := dbHandle.GetDBConn()
 	sqlStatement := `SELECT horse_name, alt_name, gender, sire_id, dam_id FROM horses WHERE id=$1;`
 	var horse = model.Horse{}
+	horse.ID = horseID
 	var returnErr error = nil
 	row := db.QueryRow(sqlStatement, horseID)
 	returnErr = row.Scan(&horse.Name, &horse.AltName, &horse.Gender, &horse.SireID, &horse.DamID)
