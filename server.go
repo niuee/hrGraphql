@@ -13,12 +13,13 @@ import (
 
 	"strings"
 
+	"github.com/niuee/hrGraphql/graph"
+
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	_ "github.com/golang-jwt/jwt/v5"
-	"github.com/niuee/hrGraphql/graph"
 )
 
 const defaultPort = "8080"
