@@ -34,6 +34,9 @@ func (r *horseResolver) Dam(ctx context.Context, obj *model.Horse) (*model.Horse
 	var returnErr error = nil
 	row := db.QueryRow(sqlStatement, obj.DamID)
 	returnErr = row.Scan(&horse.Name, &horse.AltName, &horse.Gender, &horse.SireID, &horse.DamID)
+	if obj.DamID != nil {
+		horse.ID = *obj.DamID
+	}
 	return &horse, returnErr
 }
 
