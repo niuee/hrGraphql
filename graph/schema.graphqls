@@ -4,7 +4,16 @@
 
 
 type Query {
-  horse(horseID: ID!): Horse!
+  horse(horseID: ID, horseName: String): Horse!
+  pedigree(horseID: ID, horseName: String): Pedigree!
+}
+
+type Pedigree {
+  first: [Horse]!
+  second: [Horse]!
+  third: [Horse]!
+  forth: [Horse]!
+  fifth: [Horse]!
 }
 
 type Mutation {

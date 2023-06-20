@@ -46,15 +46,30 @@ func (r *mutationResolver) Test(ctx context.Context, input *string) (*model.Hors
 }
 
 // Horse is the resolver for the horse field.
-func (r *queryResolver) Horse(ctx context.Context, horseID string) (*model.Horse, error) {
+func (r *queryResolver) Horse(ctx context.Context, horseID *string, horseName *string) (*model.Horse, error) {
 	db := dbHandle.GetDBConn()
-	sqlStatement := `SELECT horse_name, alt_name, gender, sire_id, dam_id FROM horses WHERE id=$1;`
-	var horse = model.Horse{}
-	horse.ID = horseID
 	var returnErr error = nil
-	row := db.QueryRow(sqlStatement, horseID)
-	returnErr = row.Scan(&horse.Name, &horse.AltName, &horse.Gender, &horse.SireID, &horse.DamID)
+	if horseID != nil {
+		sqlStatement := `SELECT horse_name, alt_name, gender, sire_id, dam_id FROM horses WHERE id=$1;`
+		var horse = model.Horse{}
+		horse.ID = *horseID
+		row := db.QueryRow(sqlStatement, horseID)
+		returnErr = row.Scan(&horse.Name, &horse.AltName, &horse.Gender, &horse.SireID, &horse.DamID)
+		return &horse, returnErr
+	}
+	if horseName != nil {
+		sqlStatement := `SELECT horse_name, alt_name, gender, sire_id, dam_id FROM horses WHERE horse_name=$1 or alt_name=$1;`
+		var horse = model.Horse{}
+		horse.Name = *horseName
+		row := db.QueryRow(sqlStatement, horseName)
+		returnErr = row.Scan(&horse.Name, &horse.AltName, &horse.Gender, &horse.SireID, &horse.DamID)
+		return &horse, returnErr
+	}
 
+	sqlStatement := `SELECT horse_name, alt_name, gender, sire_id, dam_id FROM horses ORDER BY id ASC LIMIT 1;`
+	var horse = model.Horse{}
+	row := db.QueryRow(sqlStatement)
+	returnErr = row.Scan(&horse.Name, &horse.AltName, &horse.Gender, &horse.SireID, &horse.DamID)
 	return &horse, returnErr
 }
 

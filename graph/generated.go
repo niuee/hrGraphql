@@ -64,7 +64,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Horse func(childComplexity int, horseID string) int
+		Horse func(childComplexity int, horseID *string, horseName *string) int
 	}
 }
 
@@ -76,7 +76,7 @@ type MutationResolver interface {
 	Test(ctx context.Context, input *string) (*model.Horse, error)
 }
 type QueryResolver interface {
-	Horse(ctx context.Context, horseID string) (*model.Horse, error)
+	Horse(ctx context.Context, horseID *string, horseName *string) (*model.Horse, error)
 }
 
 type executableSchema struct {
@@ -186,7 +186,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.Horse(childComplexity, args["horseID"].(string)), true
+		return e.complexity.Query.Horse(childComplexity, args["horseID"].(*string), args["horseName"].(*string)), true
 
 	}
 	return 0, false
@@ -344,15 +344,24 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 func (ec *executionContext) field_Query_horse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 string
+	var arg0 *string
 	if tmp, ok := rawArgs["horseID"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("horseID"))
-		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
 	args["horseID"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["horseName"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("horseName"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["horseName"] = arg1
 	return args, nil
 }
 
@@ -942,7 +951,7 @@ func (ec *executionContext) _Query_horse(ctx context.Context, field graphql.Coll
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().Horse(rctx, fc.Args["horseID"].(string))
+		return ec.resolvers.Query().Horse(rctx, fc.Args["horseID"].(*string), fc.Args["horseName"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3856,6 +3865,22 @@ func (ec *executionContext) marshalOHorseGender2ᚖgithubᚗcomᚋniueeᚋhrGrap
 		return graphql.Null
 	}
 	return v
+}
+
+func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalID(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalID(*v)
+	return res
 }
 
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
