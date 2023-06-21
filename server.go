@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 
 	"context"
 	"net/http"
@@ -29,6 +30,12 @@ func main() {
 	if port == "" {
 		port = defaultPort
 	}
+	fmt.Println("Input Port:", os.Args[1])
+	parsed, err := strconv.ParseInt(os.Args[1], 10, 32)
+	fmt.Println("Parsed:", parsed)
+	if err == nil && parsed != 0 {
+		port = os.Args[1]
+	}
 	router := gin.Default()
 	// router.Use(VerifyJWT)
 	router.POST("/query", graphqlHandler())
@@ -47,20 +54,20 @@ func main() {
 		}
 	}()
 
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 	log.Println("Shutdown Server ...")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
 	// catching ctx.Done(). timeout of 5 seconds.
 	<-ctx.Done()
-	log.Println("timeout of 5 seconds.")
+	log.Println("timeout of 3 seconds.")
 	log.Println("Server exiting")
 
 }
@@ -78,7 +85,7 @@ func graphqlHandler() gin.HandlerFunc {
 
 // Defining the Playground handler
 func playgroundHandler() gin.HandlerFunc {
-	h := playground.Handler("GraphQL", "/query")
+	h := playground.Handler("GraphQL", "/hrgraphql/query")
 
 	return func(c *gin.Context) {
 		h.ServeHTTP(c.Writer, c.Request)
